@@ -3,12 +3,18 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema(
   {
     name: String,
+    vpa: {
+      type: String,
+      required: [true, "Enter valid vpa"],
+      unique: true,
+    },
     evm_address: String,
     primaryNetwork: String,
     primaryToken: {
       type: String,
       enum: ["BUSD", "USDT", "USDC"],
     },
+    optedZapWallet: Boolean,
     balance: [],
     Transactions: [],
     poolHistory: [],

@@ -3,23 +3,24 @@ const dotenv = require("dotenv");
 const { ethers } = require("ethers");
 
 const User = require("../models/User");
-const createJWT = require("./../lib/createJwt");
-const catchAsync = require("./../lib/catchAsync");
-const AppError = require("./../lib/AppError");
 
-const { inDB } = require("./../lib/localCache");
+const { create, del, get } = require("./../controllers/Config");
+
+const createJWT = require("../lib/createJwt");
+const catchAsync = require("../lib/catchAsync");
+const AppError = require("../lib/AppError");
 
 dotenv.config();
 
 /**
  * Middlewares
  */
-const sendJWTResponse = (user, statusCode, res) => {
+const sendJWTResponse = async (user, statusCode, res) => {
   const token = createJWT(jwt, user);
   user.password = undefined;
   user.__v = undefined;
 
-  inDB.set(user.evm_address, token);
+  await create(user.evm_address, token);
 
   res.status(statusCode).json({
     status: "success",
@@ -77,22 +78,28 @@ exports.generateUMessage = catchAsync(async (req, res) => {
     address: ${address}
     nonce: ${nonce}
   `;
-  inDB.set(`${address}_message`, message);
+  await create(`${address}_message`, message);
   res.status(200).json({ status: "OK", data: message });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { address, signature } = req.params;
-  const message = inDB.get(`${address}_message`);
+  const message = await get(`${address}_message`);
   const recoveredAddress = ethers.utils.verifyMessage(message, signature);
 
-  inDB.delete(`${address}_message`);
+  await del(`${address}_message`);
 
   if (recoveredAddress !== address)
     return next(new AppError("Invalid User", 406));
 
-  const user = await User.findOne({ evm_address: recoveredAddress });
+  let user = await User.findOne({ evm_address: recoveredAddress });
+  if (!user) {
+    user = await User.create({
+      evm_address: address,
+    });
 
+    return sendJWTResponse(user, 201, res);
+  }
   sendJWTResponse(user, 200, res);
 });
 
@@ -101,5 +108,5 @@ exports.logout = catchAsync(async (req, res, next) => {
   const token = authHeader && authHeader.split(" ")[1];
   const decoded = await jwt.verify(token, process.env.JWTSECRET);
   const userAddress = decoded.address;
-  inDB.delete(userAddress);
+  await del(userAddress);
 });

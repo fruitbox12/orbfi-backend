@@ -11,7 +11,9 @@ const transactionSchema = new mongoose.Schema(
     toToken: String,
     fromTx: String,
     toTx: String,
-    fee: String,
+    fromfee: String,
+    tofee: String,
+    platformfee: String,
     amount: {
       type: String,
       required: [true, "Amount Required"],

@@ -17,7 +17,16 @@ const helmet = require("helmet");
 const ErrorHandler = require("./lib/ErrorHandler");
 const AppError = require("./lib/AppError");
 const DBConfig = require("./lib/DBConfig");
-const { inDB } = require("./lib/localCache");
+const { get } = require("./controllers/Config");
+
+/**
+ * Routes Imports
+ */
+
+const PoolApi = require("./api/Pool");
+const AuthApi = require("./api/Auth");
+const TransactionApi = require("./api/Transaction");
+const UserApi = require("./api/User");
 
 // Express App
 const app = express();
@@ -49,18 +58,17 @@ if (process.env.NODE_ENV === "development") {
 app.get("/api/app/conf/node_env", (req, res) => {
   res.status(200).json({ status: "OK", data: process.env.NODE_ENV });
 });
-app.get("/api/app/conf/", (req, res) => {
+app.get("/api/app/conf/:key", async (req, res) => {
   const { key } = req.query;
-  const value = inDB.get(key);
+  const value = await get(key);
   if (value !== null || value !== undefined) {
     res.status(200).json({ status: "OK", value });
   }
 });
-
-app.get("/api/app/test/:address/:signature", (req, res) => {
-  console.log(req.params)
-  res.json({ status: "OK" });
-});
+app.use("/api/v1/user", UserApi);
+app.use("/api/v1/transaction", TransactionApi);
+app.use("/api/v1/pool", PoolApi);
+app.use("/api/v1/auth", AuthApi);
 
 /**
  * Undefined Routes

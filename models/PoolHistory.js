@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const poolHistorySchema = new mongoose.Schema(
+const poolSchema = new mongoose.Schema(
   {
     type: {
       type: String,
@@ -19,5 +19,5 @@ const poolHistorySchema = new mongoose.Schema(
   }
 );
 
-const PoolHistory = mongoose.model("PoolHistory", poolHistorySchema);
-module.exports = PoolHistory;
+const Pool = mongoose.model("Pool", poolSchema);
+module.exports = Pool;
