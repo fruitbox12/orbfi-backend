@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
     name: String,
     vpa: {
       type: String,
-      required: [true, "Enter valid vpa"],
+      // required: [true, "Enter valid vpa"],
       unique: true,
     },
     evm_address: String,
@@ -16,8 +16,6 @@ const userSchema = new mongoose.Schema(
     },
     optedZapWallet: Boolean,
     balance: [],
-    Transactions: [],
-    poolHistory: [],
     authID: String,
   },
   {

@@ -10,16 +10,32 @@ exports.createTransaction = catchAsync(async (req, res, next) => {
 
 exports.getAllTransaction = catchAsync(async (req, res, next) => {
   const transactions = await Transaction.find({ from: req.user.evm_address });
-  res
-    .status(200)
-    .json({
-      status: "success",
-      length: transactions.length,
-      data: transactions,
-    });
+  res.status(200).json({
+    status: "success",
+    length: transactions.length,
+    data: transactions,
+  });
 });
 
+exports.updateTransactionModel = async (id, newData) => {
+  const updatedTransaction = await Transaction.findByIdAndUpdate(id, newData, {
+    new: true,
+  });
+  return updatedTransaction;
+};
+
 exports.updateTransaction = catchAsync(async (req, res, next) => {
-  const { fromTx, toTx } = req.body;
-  res.json({ status: "success", data: "idk" });
+  const id = req.params;
+  const newData = req.body;
+  const transaction = await this.updateTransactionModel(id, newData);
+  res.json({ status: "success", data: transaction });
+});
+
+exports.getUserTransactions = catchAsync(async (req, res, next) => {
+  const transactions = await Transaction.find({ from: req.user.evm_address });
+  res.status(200).json({
+    status: "success",
+    length: transactions.length,
+    data: transactions,
+  });
 });

@@ -18,6 +18,7 @@ const ErrorHandler = require("./lib/ErrorHandler");
 const AppError = require("./lib/AppError");
 const DBConfig = require("./lib/DBConfig");
 const { get } = require("./controllers/Config");
+const { seralizeUser } = require("./controllers/Auth");
 
 /**
  * Routes Imports
@@ -27,6 +28,7 @@ const PoolApi = require("./api/Pool");
 const AuthApi = require("./api/Auth");
 const TransactionApi = require("./api/Transaction");
 const UserApi = require("./api/User");
+const TestApi = require("./api/test");
 
 // Express App
 const app = express();
@@ -40,7 +42,7 @@ app.use(compression());
 app.use(express.static(path.resolve(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(seralizeUser);
 // app.use((req, res, next) => {
 //   console.log(req.originalUrl);
 //   next();
@@ -55,16 +57,10 @@ if (process.env.NODE_ENV === "development") {
 /**
  * Api Routes
  */
-app.get("/api/app/conf/node_env", (req, res) => {
-  res.status(200).json({ status: "OK", data: process.env.NODE_ENV });
-});
-app.get("/api/app/conf/:key", async (req, res) => {
-  const { key } = req.query;
-  const value = await get(key);
-  if (value !== null || value !== undefined) {
-    res.status(200).json({ status: "OK", value });
-  }
-});
+
+if (process.env.NODE_ENV === "development") {
+  app.use("/test", TestApi);
+}
 app.use("/api/v1/user", UserApi);
 app.use("/api/v1/transaction", TransactionApi);
 app.use("/api/v1/pool", PoolApi);

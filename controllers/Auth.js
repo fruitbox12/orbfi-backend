@@ -4,7 +4,7 @@ const { ethers } = require("ethers");
 
 const User = require("../models/User");
 
-const { create, del, get } = require("./../controllers/Config");
+const { set, get, del } = require("./../controllers/Config");
 
 const createJWT = require("../lib/createJwt");
 const catchAsync = require("../lib/catchAsync");
@@ -20,7 +20,7 @@ const sendJWTResponse = async (user, statusCode, res) => {
   user.password = undefined;
   user.__v = undefined;
 
-  await create(user.evm_address, token);
+  await set(user.evm_address, token);
 
   res.status(statusCode).json({
     status: "success",
@@ -73,13 +73,9 @@ exports.seralizeUser = catchAsync(async (req, res, next) => {
 
 exports.generateUMessage = catchAsync(async (req, res) => {
   const { address } = req.params;
-  const nonce = Math.floor(Math.random() * 1000000);
-  const message = `Orb.fi server request you to verify the message:
-    address: ${address}
-    nonce: ${nonce}
-  `;
-  await create(`${address}_message`, message);
-  res.status(200).json({ status: "OK", data: message });
+  const nonce = Math.floor(Math.random() * 100000000);
+  await set(`${address}_message`, nonce);
+  res.status(200).json({ status: "OK", data: nonce });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -109,4 +105,5 @@ exports.logout = catchAsync(async (req, res, next) => {
   const decoded = await jwt.verify(token, process.env.JWTSECRET);
   const userAddress = decoded.address;
   await del(userAddress);
+  res.status(200).json({ status: "success", data: "Logged out" });
 });

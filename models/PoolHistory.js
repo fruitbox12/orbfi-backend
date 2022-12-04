@@ -11,6 +11,7 @@ const poolSchema = new mongoose.Schema(
     token: String,
     amount: String,
     fee: String,
+    txHash: String,
   },
   {
     timestamps: true,

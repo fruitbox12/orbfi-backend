@@ -1,8 +1,9 @@
 const router = require("express").Router();
 
-const { generateUMessage, login } = require("./../controllers/Auth");
+const { generateUMessage, login, logout } = require("./../controllers/Auth");
 
 router.get("/login/getMessage/:address", generateUMessage);
-router.get("/login/:address/:signature", login);
+router.post("/login/:address/:signature", login);
+router.get("/logout", logout);
 
 module.exports = router;

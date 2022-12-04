@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const ConfigSchema = new mongoose.Schema(
   {
-    key: String,
+    _id: String,
     value: String,
   },
   {

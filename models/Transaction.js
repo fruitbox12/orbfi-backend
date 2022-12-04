@@ -12,7 +12,7 @@ const transactionSchema = new mongoose.Schema(
     fromTx: String,
     toTx: String,
     fromfee: String,
-    tofee: String,
+    toFee: String,
     platformfee: String,
     amount: {
       type: String,
